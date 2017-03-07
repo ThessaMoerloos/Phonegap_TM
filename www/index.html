@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8" />
-    <title>Phaser - Making your first game, part 8</title>
+    <title>Nostalgie</title>
 	<script type="text/javascript" src="js/phaser.min.js"></script>
     <style type="text/css">
         body {
@@ -17,9 +17,6 @@
 var game = new Phaser.Game(600, 900, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload() {
-
-    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-
 
     game.load.spritesheet('fox', 'assets/fox_spritesheet.png', 47, 44);
     game.load.image('road', 'assets/level1En2BaanBosPacman.jpg');
@@ -67,6 +64,10 @@ var currentPlayer;
 
 var ghost;
 var stilstaandFrame;
+var barriere1Links;
+var barriere1Rechts;
+
+var cars;
 
 function create() {
 
@@ -116,7 +117,6 @@ function create() {
     player1.physicsBodyType = Phaser.Physics.ARCADE;
 
 
-    //
 
 
 
@@ -131,9 +131,12 @@ function create() {
 
 
 
+
+
+
     stilstaandFrame = 14;
 
-		portaal1 = game.add.sprite(40, 70, 'portaal1');
+		portaal1 = game.add.sprite(75, 82, 'portaal1');
 		portaal1.scale.setTo(0.4,0.4);
 		game.physics.arcade.enable(portaal1);
 		portaal1.enableBody = true;
@@ -141,7 +144,10 @@ function create() {
 		portaal1.body.immovable = true;
 
 
-		portaal1Klein = game.add.sprite(59, 125, 'portaal1Klein');
+
+
+
+		portaal1Klein = game.add.sprite(79, 125, 'portaal1Klein');
 		portaal1Klein.scale.setTo(0.32,0.5);
 		game.physics.arcade.enable(portaal1Klein);
 		portaal1Klein.enableBody = true;
@@ -151,60 +157,77 @@ function create() {
 
 
 
+		barriere1Links = game.add.sprite(0, 125, 'portaal1Klein');
+		barriere1Links.scale.setTo(0.78,0.5);
+		game.physics.arcade.enable(barriere1Links);
+		barriere1Links.enableBody = true;
+		barriere1Links.physicsBodyType = Phaser.Physics.ARCADE;
+		barriere1Links.body.immovable = true;
+
+
+		barriere1Rechts = game.add.sprite(112, 125, 'portaal1Klein');
+		barriere1Rechts.scale.setTo(5.1,0.5);
+		game.physics.arcade.enable(barriere1Rechts);
+		barriere1Rechts.enableBody = true;
+		barriere1Rechts.physicsBodyType = Phaser.Physics.ARCADE;
+		barriere1Rechts.body.immovable = true;
 
 
 
-    var car = game.add.sprite(game.world.width + 72, game.world.centerY -200, 'car');
-        car.anchor.set(0.5);
-        car.scale.setTo(0.2, 0.2);
-        car.enableBody = true;
-        game.physics.arcade.enable(car);
-
-        var car2 = game.add.sprite(game.world.width + 72, game.world.centerY -120, 'car2');
-        car2.anchor.set(0.5);
-        car2.scale.setTo(0.2, 0.2);
-        car2.enableBody = true;
-        game.physics.arcade.enable(car2);
-
-        var car3 = game.add.sprite(game.world.width + 72, game.world.centerY -20, 'car3');
-        car3.anchor.set(0.5);
-        car3.scale.setTo(0.2, 0.2);
-        car3.enableBody = true;
-        game.physics.arcade.enable(car3);
-
-        var car4 = game.add.sprite(game.world.width + 72, game.world.centerY + 60, 'car4');
-        car4.anchor.set(0.5);
-        car4.scale.setTo(0.2, 0.2);
-        car4.enableBody = true;
-        game.physics.arcade.enable(car4);
-
-        var car5 = game.add.sprite(game.world.width + 72, game.world.centerY + 160, 'car5');
-        car5.anchor.set(0.5);
-        car5.scale.setTo(0.2, 0.2);
-        car5.enableBody = true;
-        game.physics.arcade.enable(car5);
+		cars = game.add.group();
 
 
+    var car = cars.create(game.world.width + 72, game.world.centerY -200, 'car');
+	  car.anchor.set(0.5);
+	  car.scale.setTo(0.2, 0.2);
+	  car.enableBody = true;
+	  game.physics.arcade.enable(car);
 
-        var tween = game.add.tween(car).to( {x: -car.height, y: game.world.centerY -205}, 3500, Phaser.Easing.Linear.None, true);
-        tween.repeat(-1, 500);
+	  var car2 = cars.create(game.world.width + 72, game.world.centerY -120, 'car2');
+	  car2.anchor.set(0.5);
+	  car2.scale.setTo(0.2, 0.2);
+	  car2.enableBody = true;
+	  game.physics.arcade.enable(car2);
 
-        var tween = game.add.tween(car2).to( {x: -car.height, y: game.world.centerY -110}, 4500, Phaser.Easing.Linear.None, true);
-        tween.repeat(-1, 400);
+	  var car3 = cars.create(game.world.width + 72, game.world.centerY -20, 'car3');
+	  car3.anchor.set(0.5);
+	  car3.scale.setTo(0.2, 0.2);
+	  car3.enableBody = true;
+	  game.physics.arcade.enable(car3);
 
-        var tween = game.add.tween(car3).to( {x: -car.height, y: game.world.centerY -30}, 2500, Phaser.Easing.Linear.None, true);
-        tween.repeat(-1, 300);
+	  var car4 = cars.create(game.world.width + 72, game.world.centerY + 60, 'car4');
+	  car4.anchor.set(0.5);
+	  car4.scale.setTo(0.2, 0.2);
+	  car4.enableBody = true;
+	  game.physics.arcade.enable(car4);
 
-        var tween = game.add.tween(car4).to( {x: -car.height, y: game.world.centerY + 70}, 5500, Phaser.Easing.Linear.None, true);
-        tween.repeat(-1, 200);
-
-        var tween = game.add.tween(car5).to( {x: -car.height, y: game.world.centerY + 170}, 3000, Phaser.Easing.Linear.None, true);
-        tween.repeat(-1, 100);
+	  var car5 = cars.create(game.world.width + 72, game.world.centerY + 160, 'car5');
+	  car5.anchor.set(0.5);
+	  car5.scale.setTo(0.2, 0.2);
+	  car5.enableBody = true;
+	  game.physics.arcade.enable(car5);
 
 
 
-				var bos = game.add.sprite(0, game.world.height - 300, 'bos');
-				bos.scale.setTo(0.77);
+	  var tween = game.add.tween(car).to( {x: -car.height, y: game.world.centerY -205}, 3500, Phaser.Easing.Linear.None, true);
+	  tween.repeat(-1, 500);
+
+	  var tween = game.add.tween(car2).to( {x: -car.height, y: game.world.centerY -110}, 4500, Phaser.Easing.Linear.None, true);
+	  tween.repeat(-1, 400);
+
+	  var tween = game.add.tween(car3).to( {x: -car.height, y: game.world.centerY -30}, 2500, Phaser.Easing.Linear.None, true);
+	  tween.repeat(-1, 300);
+
+	  var tween = game.add.tween(car4).to( {x: -car.height, y: game.world.centerY + 70}, 5500, Phaser.Easing.Linear.None, true);
+	  tween.repeat(-1, 200);
+
+	  var tween = game.add.tween(car5).to( {x: -car.height, y: game.world.centerY + 170}, 3000, Phaser.Easing.Linear.None, true);
+	  tween.repeat(-1, 100);
+
+
+
+		var bos = game.add.sprite(0, game.world.height - 300, 'bos');
+		bos.scale.setTo(0.77);
 
 
 
@@ -218,8 +241,15 @@ function update()
 
     game.physics.arcade.overlap(currentPlayer, ghost, respawn, null, this);
     game.physics.arcade.overlap(player1, portaal1Klein, collisionHandler1, null, this);
+		game.physics.arcade.overlap(currentPlayer, cars, respawn, null, this);
 
-    var hitWrongPortal = game.physics.arcade.collide(player2, portaal1Klein);
+    var hitWrongPortal1 = game.physics.arcade.collide(player2, portaal1Klein);
+		var hitBarriere1 = game.physics.arcade.collide(player1, barriere1Links);
+		var hitBarriere1 = game.physics.arcade.collide(player1, barriere1Rechts);
+		var hitBarriere1 = game.physics.arcade.collide(player2, barriere1Links);
+		var hitBarriere1 = game.physics.arcade.collide(player2, barriere1Rechts);
+		var hitPortal1 = game.physics.arcade.collide(player2, portaal1);
+
 
     game.physics.arcade.overlap(currentPlayer, portaal1, playEndSong, null, this);
 
