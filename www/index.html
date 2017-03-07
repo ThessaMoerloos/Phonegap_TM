@@ -1,61 +1,310 @@
-<!DOCTYPE html>
-<!--
-    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
-
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
-<html>
-
-<head>
-    <meta charset="utf-8" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="msapplication-tap-highlight" content="no" />
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
-    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
-    <!-- Good default declaration:
-    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-        * Enable inline JS: add 'unsafe-inline' to default-src
-        * Enable eval(): add 'unsafe-eval' to default-src
-    * Create your own at http://cspisawesome.com
-    -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
-
-    <link rel="stylesheet" type="text/css" href="css/index.css" />
-    <title>Hello World</title>
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>Phaser - Making your first game, part 8</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="app">
-        <h1>PhoneGap</h1>
-        <div id="deviceready" class="blink">
-            <p class="event listening">Connecting to Device</p>
-            <p class="event received">Device is Ready</p>
-        </div>
-    </div>
-    <script type="text/javascript" src="lib/phaser.min.js"></script>
-    <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
-    <script type="text/javascript">
-        app.initialize();
-    </script>
-</body>
 
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+function preload() {
+
+    game.load.image('star', 'assets/star.png');
+    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+
+
+    game.load.spritesheet('fox', 'assets/fox_spritesheet.png', 47, 44);
+    game.load.image('road', 'assets/road.png');
+
+    game.load.audio('sound', 'assets/avicci.mp3');
+    game.load.audio('endSound', 'assets/rude.mp3');
+
+
+    game.load.image('portaal1', 'assets/grootPortaal.png');
+    game.load.image('portaal1Klein', 'assets/kleinPortaal.png');
+
+    game.load.spritesheet('player2', 'assets/dude.png', 32, 48);
+
+    game.load.image('car', 'assets/car.png');
+    game.load.image('car2', 'assets/car2.png');
+    game.load.image('car3', 'assets/car3.png');
+    game.load.image('car4', 'assets/car4.png');
+    game.load.image('car5', 'assets/car5.png');
+
+}
+
+//var player;
+var platforms;
+var cursors;
+
+var stars;
+
+
+var startpositieX;
+var startpositieY;
+
+
+var baan;
+var song1;
+var song2;
+var currentSong
+
+var portaal1;
+var portaal1Klein;
+var player1;
+var player2;
+var currentPlayer;
+
+var ghost;
+var stilstaandFrame;
+
+function create() {
+
+    //  Our controls.
+    cursors = game.input.keyboard.createCursorKeys();
+
+
+
+    song1 = game.add.audio('sound');
+    song2 = game.add.audio('endSound');
+
+    currentSong = song1;
+    currentSong.loop = true;
+    currentSong.play();
+
+
+
+    //  We're going to be using physics, so enable the Arcade Physics system
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+
+    //  A simple background for our game
+    baan = game.add.sprite(0,0, 'road');
+    baan.scale.setTo(1.67,1.67);
+
+
+    portaal1 = game.add.sprite(game.world.centerX, game.world.centerY -200, 'portaal1');
+    portaal1Klein = game.add.sprite(game.world.centerX, game.world.centerY -38, 'portaal1Klein');
+
+
+    // The player and its settings
+
+    startpositieX = 32;
+    startpositieY = game.world.height - 150;   //=480
+
+    player1 = game.add.sprite(startpositieX, startpositieY, 'fox');
+    player1.scale.setTo(1.5, 1.5);
+
+    currentPlayer = player1;
+
+    //  We need to enable physics on the player
+    game.physics.arcade.enable(player1);
+
+
+    //hieronder van thessa
+    player1.enableBody = true;
+    player1.physicsBodyType = Phaser.Physics.ARCADE;
+
+
+    game.physics.arcade.enable(portaal1Klein);
+    portaal1Klein.enableBody = true;
+    portaal1Klein.physicsBodyType = Phaser.Physics.ARCADE;
+    portaal1Klein.body.immovable = true;
+    //
+
+    //dit is tijdelijk om muziek te testen
+    game.physics.arcade.enable(portaal1);
+    portaal1.enableBody = true;
+    portaal1.physicsBodyType = Phaser.Physics.ARCADE;
+    portaal1.body.immovable = true;
+
+
+    //  Player physics properties. Give the little guy a slight bounce.
+    player1.body.collideWorldBounds = true;
+
+    //  Our two animations, walking left and right.
+    player1.animations.add('left', [4, 5, 6, 7], 10, true);
+    player1.animations.add('right', [8, 9, 10, 11], 10, true);
+    player1.animations.add('up', [12, 13, 14, 15], 10, true);
+    player1.animations.add('down', [0, 1, 2, 3], 10, true);
+
+    stilstaandFrame = 2;
+
+
+
+    ghost = game.add.sprite(game.world.width + 30, game.world.centerY, 'star');
+    //ghost.anchor.set(0.5);
+    //ghost.scale.setTo(0.2, 0.2);
+    ghost.enableBody = true;
+    game.physics.arcade.enable(ghost);
+/*
+    var tween = game.add.tween(ghost).to( {x: 1, y: game.world.centerY }, 4000, Phaser.Easing.Linear.N true);
+    tween.yoyo(true, 500);
+    tween.repeat(-1, 500);
+*/
+
+
+    var car = game.add.sprite(game.world.width + 72, game.world.centerY -150, 'car');
+        car.anchor.set(0.5);
+        car.scale.setTo(0.2, 0.2);
+        car.enableBody = true;
+        game.physics.arcade.enable(car);
+
+        var car2 = game.add.sprite(game.world.width + 72, game.world.centerY -60, 'car2');
+        car2.anchor.set(0.5);
+        car2.scale.setTo(0.2, 0.2);
+        car2.enableBody = true;
+        game.physics.arcade.enable(car2);
+
+        var car3 = game.add.sprite(game.world.width + 72, game.world.centerY + 30, 'car3');
+        car3.anchor.set(0.5);
+        car3.scale.setTo(0.2, 0.2);
+        car3.enableBody = true;
+        game.physics.arcade.enable(car3);
+
+        var car4 = game.add.sprite(game.world.width + 72, game.world.centerY + 120, 'car4');
+        car4.anchor.set(0.5);
+        car4.scale.setTo(0.2, 0.2);
+        car4.enableBody = true;
+        game.physics.arcade.enable(car4);
+
+        var car5 = game.add.sprite(game.world.width + 72, game.world.centerY + 210, 'car5');
+        car5.anchor.set(0.5);
+        car5.scale.setTo(0.2, 0.2);
+        car5.enableBody = true;
+        game.physics.arcade.enable(car5);
+
+
+
+        var tween = game.add.tween(car).to( {x: -car.height, y: game.world.centerY -150}, 3500, Phaser.Easing.Linear.None, true);
+        tween.repeat(-1, 500);
+
+        var tween = game.add.tween(car2).to( {x: -car.height, y: game.world.centerY -60}, 4500, Phaser.Easing.Linear.None, true);
+        tween.repeat(-1, 400);
+
+        var tween = game.add.tween(car3).to( {x: -car.height, y: game.world.centerY + 30}, 2500, Phaser.Easing.Linear.None, true);
+        tween.repeat(-1, 300);
+
+        var tween = game.add.tween(car4).to( {x: -car.height, y: game.world.centerY + 120}, 5500, Phaser.Easing.Linear.None, true);
+        tween.repeat(-1, 200);
+
+        var tween = game.add.tween(car5).to( {x: -car.height, y: game.world.centerY + 210}, 3000, Phaser.Easing.Linear.None, true);
+        tween.repeat(-1, 100);
+    
+}
+
+function update() 
+{
+
+    movePlayer(currentPlayer);
+
+
+    game.physics.arcade.overlap(currentPlayer, ghost, respawn, null, this);
+    game.physics.arcade.overlap(player1, portaal1Klein, collisionHandler1, null, this);
+
+    var hitWrongPortal = game.physics.arcade.collide(player2, portaal1Klein);
+
+    game.physics.arcade.overlap(currentPlayer, portaal1, playEndSong, null, this);
+
+}
+
+
+function collisionHandler1(player1, portaal1Klein)
+{
+        player1.kill();
+
+        player2 = game.add.sprite(portaal1Klein.body.position.x, portaal1Klein.body.position.y + 5, 'player2');
+        game.physics.arcade.enable(player2);
+        player2.enableBody = true;
+        player2.physicsBodyType = Phaser.Physics.ARCADE;
+
+        player2.animations.add('left', [0, 1, 2, 3], 10, true);
+        player2.animations.add('right', [5, 6, 7, 8], 10, true);
+
+
+        currentPlayer = player2;
+}
+
+
+function respawn (currentPlayer, ghost) 
+{    
+    currentPlayer.body.position.x = startpositieX;
+    currentPlayer.body.position.y = startpositieY;
+}
+
+
+function playEndSong (currentPlayer, portaal1) 
+{
+
+    if(currentSong != song2)
+    {
+        currentSong.pause();
+        currentSong = song2;
+        currentSong.play();
+    }   
+
+}
+
+
+function movePlayer(player)
+{
+    player.body.velocity.x = 0;
+    player.body.velocity.y = 0;
+
+    if (cursors.left.isDown)
+    {
+        //  Move to the left
+        player.body.velocity.x = -150;
+
+        player.animations.play('left');
+
+        stilstaandFrame = 4;
+    }
+    else if (cursors.right.isDown)
+    {
+        //  Move to the right
+        player.body.velocity.x = 150;
+
+        player.animations.play('right');
+
+        stilstaandFrame = 8;
+    }
+    else if(cursors.up.isDown)
+    {
+        player.body.velocity.y = -150;
+
+        player.animations.play('up');
+
+        stilstaandFrame = 14;
+    }
+    else if(cursors.down.isDown)
+    {
+        player.body.velocity.y = 150;
+
+        player.animations.play('down');
+
+        stilstaandFrame = 2;
+    }
+    else
+    {
+        //  Stand still
+        player.animations.stop();
+
+        player.frame = stilstaandFrame;
+    }
+}
+
+
+</script>
+
+</body>
 </html>
